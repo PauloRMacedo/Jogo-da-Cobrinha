@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Jogo da Cobrinha</title>
+	</head>
+	<style type="text/css">
+		.disabled{
+			display: none;
+		}
+		body{
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+		}
+	</style>
+	<body>
+		<canvas id="tela" width="400" height="400"></canvas>
+		<p id="pontos"></p>
+		<p id="time"></p>
+		<button id="restart" class="disabled" onclick="location.reload();">Jogar</button>
+		<script type="text/javascript">
+			window.onload = function(){
+				const tela = document.getElementById('tela');
+				const ctx = tela.getContext("2d");
+				const element = document.getElementById("restart");
+				const e = document.getElementById("time");
+				document.addEventListener("keydown", keyPush);
+				setInterval(game, 70);
+				var x = setInterval(timer, 1000);
+				
+				var parar = 1;
+
+				var elemento;	
+
+				const spd = 1;
+				var time = 31;
+				var spdX = spdY = 0;
+
+				var points = 0;
+
+				var gameOver = false;
+
+				var lp = 20;
+				var qtd = 20;
+
+				var pX = Math.floor(Math.random()*qtd);
+				var pY = Math.floor(Math.random()*qtd);
+
+				var appleX = Math.floor(Math.random()*qtd);
+				var appleY = Math.floor(Math.random()*qtd);
+
+				var trail = [];
+
+				tail = 5;
+
+				function game(){
+					pX += spdX;
+					pY += spdY;
+
+					if (pX < 0) {
+						pX = qtd - 1;
+					} else if (pX > qtd - 1) {
+						pX = 0;
+					}
+
+					if (pY < 0) {
+						pY = qtd - 1;
+					} else if (pY > qtd - 1) {
+						pY = 0;
+					}
+
+					ctx.fillStyle = "black";
+					ctx.fillRect(0, 0, tela.width, tela.height);	
+
+					ctx.fillStyle = "red";
+					ctx.fillRect(appleX*lp, appleY*lp, lp, lp);
+
+					ctx.fillStyle = "gray";
+					for (var i = 0; i < trail.length; i++) {
+						ctx.fillRect(trail[i].x*lp, trail[i].y*lp, lp-1, lp-1);
+						if(trail[i].x == pX && trail[i].y == pY){
+							spdX = spdY = 0;
+							tail = 5;
+							if(points>0){
+								gameOver = true;
+  								element.classList.remove("disabled");
+  								e.classList.add("disabled");
+  								stop();
+  								if(parar == 1 && time > 0){
+  									// points*=(30 - time);
+  									parar = 0;
+									document.getElementById('pontos').innerHTML = "Pontuação final: <br>" + points + " pontos em "+(30-time)+" segundos" ;
+
+  								}
+							}
+						}
+					}
+					
+					trail.push({x:pX, y:pY});
+					
+					while(trail.length > tail){
+						trail.shift();
+					}
+
+					if (appleX == pX && appleY == pY) {
+						tail++;
+						for (var i = 0; i < trail.length; i++) {
+							while(trail[i].x == appleX || trail[i].y == appleY){
+								appleX = Math.floor(Math.random()*qtd);
+								appleY = Math.floor(Math.random()*qtd);		
+							}
+						}
+						points ++;
+					}
+				}
+
+				function keyPush(event){
+					console.log(gameOver);
+					if(!gameOver){
+						switch (event.keyCode){
+							case 37:
+								spdX = - spd;
+								spdY = 0;
+								break;
+							case 38:
+								spdX = 0;
+								spdY = - spd;
+								break;
+							case 39:
+								spdX = spd;
+								spdY = 0;
+								break;
+							case 40:
+								spdX = 0;
+								spdY = spd;
+								break;
+						}
+					}
+				}
+
+
+				function reset (){
+					var spdX = spdY = 0;
+				}
+
+				function timer(){
+					
+					if(time == 0) {
+						gameOver = true;
+						reset();
+						document.getElementById('pontos').innerHTML = "Pontuação final: " + points + " pontos em 30 segundos";
+						e.classList.add("disabled");
+						element.classList.remove("disabled");
+						
+					}else {
+						time --;
+						document.getElementById('time').innerHTML = time;
+					}
+				}
+				function stop() { 
+					clearInterval(x); 
+					console.log(time);
+		        } 
+			}
+		</script>
+
+	</body>
+</html>
